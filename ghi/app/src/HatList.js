@@ -2,24 +2,44 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 function HatColumn(props) {
+    const handleDeleteClick = async haturl =>{
+        const url ="http://localhost:8090"+haturl
+        const fetchConfig ={
+            method:'delete'
+        }
+    
+
+    const response  = await fetch(url,fetchConfig);
+    if(response.ok){
+        window.location.reload()
+
+    }
+}
+
+
+
   return (
     <div className="col">
       {props.list.map(data => {
         console.log(data)
         return (
           <div key={data.href} className="card mb-3 shadow">
-            <img src={data.location.picture_url} className="card-img-top" />
+            <img src={data.picture_url} className="card-img-top" />
             <div className="card-body">
               <h5 className="card-title">{data.name}</h5>
               <h6 className="card-subtitle mb-2 text-muted">
-                {data.fabric}
+                {data.fabric}--{data.color}
+                <p>{data.location.name}</p>
               </h6>
               <p className="card-text">
-                {data.location.name}
+                {data.style}
+                
               </p>
             </div>
             <div className="card-footer">
-              
+            
+            <button onClick={() => handleDeleteClick(data.href)} className="btn btn-primary px-4 ">Delete Hat</button>
+
             </div>
           </div>
         );
@@ -27,6 +47,10 @@ function HatColumn(props) {
     </div>
   );
 }
+
+
+
+
 
 class HatList extends React.Component {
   constructor(props) {
@@ -86,6 +110,10 @@ class HatList extends React.Component {
       console.error(e);
     }
   }
+
+
+
+  
 
   render() {
     return (

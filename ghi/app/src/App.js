@@ -5,6 +5,7 @@ import HatForm from './HatForm';
 import HatList from './HatList';
 
 
+
 function App() {
   return (
     <BrowserRouter>
@@ -15,9 +16,10 @@ function App() {
         
           <Route path="hats" element={<HatList />} />
           <Route path="new" element={<HatForm />} />
-       
-        </Routes>
+         
  
+        </Routes>
+        
       </div>
     </BrowserRouter>
   );

@@ -9,4 +9,5 @@ urlpatterns = [
     path("hats/", api_list_hats, name="api_create_hats"),
     path("locations/<int:location_vo_id>/hats/", api_list_hats, name="api_list_hats"),
     path("hats/<int:pk>/", api_show_hat, name="api_show_hat"),
+    
 ]
