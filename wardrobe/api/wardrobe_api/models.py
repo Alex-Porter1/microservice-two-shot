@@ -8,7 +8,7 @@ class Location(models.Model):
     shelf_number = models.PositiveSmallIntegerField()
 
     def get_api_url(self):
-        return reverse("api_location", kwargs={"pk": self.pk})
+        return reverse("api_bin", kwargs={"pk": self.pk})
 
     def __str__(self):
         return f"{self.closet_name} - {self.section_number}/{self.shelf_number}"
