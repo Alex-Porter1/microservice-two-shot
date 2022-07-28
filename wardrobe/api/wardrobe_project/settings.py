@@ -26,7 +26,11 @@ SECRET_KEY = 'django-insecure-e9kf6nups(2tagv+$@pg(p^*4cz#tgffqchjnxqw1c*t7yfauc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+<<<<<<< HEAD
 ALLOWED_HOSTS = ["localhost", "wardrobe-api"]
+=======
+ALLOWED_HOSTS = ["localhost","wardrobe-api"]
+>>>>>>> 570d203d124c23d0c9b650dcd5e6b45dedaff7c1
 
 
 # Application definition

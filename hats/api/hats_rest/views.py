@@ -1,102 +1,89 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from common.json import ModelEncoder
-from .models import Hat, LocationVO
-from django.views.decorators.http import require_http_methods
 import json
+from django.views.decorators.http import require_http_methods
+from .models import LocationVO, Hat
+# Create your views here.
 
 
-class LocationVOListEncoder(ModelEncoder):
+class LocationVODetailEncoder(ModelEncoder):
     model = LocationVO
-    properties = ['closet_name']
-
-class LocationVoDetailEncoder(ModelEncoder):
-    model = LocationVO
-    properties = ['closet_name','section_number','shelf_number']
-
+    properties = ["name", "import_href"]
 
 
 class HatListEncoder(ModelEncoder):
     model = Hat
-    properties = ["name", "location"]
+    properties = ["id", "name"]
 
-    encoders = {
-        "location": LocationVOListEncoder(),
-    }
 
 class HatDetailEncoder(ModelEncoder):
     model = Hat
-    properties = ["name","fabric","color","url","location"]
-
+    properties = ["id", "name", "color", "fabric", "style", "picture_url","location"]
+    encoders = {
+        "location": LocationVODetailEncoder(),
+    }
 
 
 @require_http_methods(["GET", "POST"])
-def api_list_hats(request):
+def api_list_hats(request, location_vo_id=None):
     if request.method == "GET":
-        hats = Hat.objects.all()
+        if location_vo_id is not None:
+            hats = Hat.objects.filter(location=location_vo_id)
+        else:
+            hats = Hat.objects.all()
         return JsonResponse(
             {"hats": hats},
             encoder=HatListEncoder,
         )
-
     else:
         content = json.loads(request.body)
-
-        # Get the Location object and put it in the content dict
+        print("CONTENT", content)
         try:
-
-            location = LocationVO.objects.get(id=content["location"])
+            location_href = content["location"]
+            location = LocationVO.objects.get(import_href=location_href)
             content["location"] = location
         except LocationVO.DoesNotExist:
             return JsonResponse(
-                {"message": "Invalid location id"},
+                {"message": "Invalid LocationVO Id"},
                 status=400,
             )
-
+        
         hat = Hat.objects.create(**content)
         return JsonResponse(
             hat,
-            encoder=HatListEncoder,
+            encoder=HatDetailEncoder,
             safe=False,
         )
 
 
 @require_http_methods(["GET", "PUT", "DELETE"])
 def api_show_hat(request, pk):
+    hat = Hat.objects.get(id=pk)
     if request.method == "GET":
-        hat = Hat.objects.get(id=pk)
         return JsonResponse(
             hat,
             encoder=HatDetailEncoder,
             safe=False,
         )
-    else:
-     
+    elif request.method == "DELETE":
         count, _ = Hat.objects.filter(id=pk).delete()
-        return JsonResponse({"deleted": count > 0})
-
-    # else:
-    #     # copied from create
-    #     content = json.loads(request.body)
-    #     try:
-    #         # new code
-    #         if "hat" in content:
-    #             hat = Hat.objects.get(id=content["hat"])
-    #             content["hat"] = hat
-    #             # new code
-
-    #     except Hat.DoesNotExist:
-    #         return JsonResponse(
-    #             {"message": "Invalid location abbreviation"},
-    #             status=400,
-    #         )
-
-    #     Hat.objects.filter(id=pk).update(**content)
-
-    #     # copied from get detail
-    #     hat = Hat.objects.get(id=pk)
-    #     return JsonResponse(
-    #         hat,
-    #         encoder=HatDetailEncoder,
-    #         safe=False,
-    #     )
+        return JsonResponse({"delete": count > 0})
+    else:
+        content = json.loads(request.body)
+        if "location" in content:
+            try:
+                location = LocationVO.objects.get(id=content["location"])
+                content["location"] = location
+            except LocationVO.DoesNotExist:
+                return JsonResponse(
+                    {"message": "Invalid Location Id"},
+                    status=400,
+                )
+        
+        Hat.objects.filter(id=pk).update(**content)
+        return JsonResponse(
+            hat,
+            encoder=HatDetailEncoder,
+            safe=False,
+        )
