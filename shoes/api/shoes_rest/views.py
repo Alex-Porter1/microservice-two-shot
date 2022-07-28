@@ -25,12 +25,24 @@ class ShoeListEncoder(ModelEncoder):
         "bin": BinVOListEncoder(),
     }
 
+def api_list_binVOs(request):
+    if request.method == "GET":
+        binVOs = BinVO.objects.all()
+        return JsonResponse(
+            {"BinVOs": binVOs},
+            encoder=BinVOListEncoder,
+            safe=False
+        )
+
 
 
 @require_http_methods(["GET", "POST"])
-def api_list_shoes(request):
+def api_list_shoes(request, bin_vo_id=None):
     if request.method == "GET":
-        shoes = Shoe.objects.all()
+        if bin_vo_id is not None:
+            shoes = Shoe.objects.filter(bin=bin_vo_id)
+        else:
+            shoes = Shoe.objects.all()
         return JsonResponse(
             {"shoes": shoes},
             encoder=ShoeListEncoder,

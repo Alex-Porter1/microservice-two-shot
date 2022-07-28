@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.urls import reverse
 
 
 class BinVO(models.Model):
@@ -16,6 +16,9 @@ class Shoe(models.Model):
 
     bin = models.ForeignKey(
         BinVO,
-        related_name="shoes",
+        related_name="bin",
         on_delete=models.PROTECT,
     )
+
+    def get_api_url(self):
+        return reverse("api_list_shoes", kwargs={"pk": self.pk})
