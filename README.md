@@ -2,8 +2,8 @@
 
 Team:
 
-* Person 1 - Which microservice?
-* Person 2 - Which microservice?
+* Menger Dou - Hat microservice
+* Alex Porter - Shoes microservice
 
 ## Design
 
