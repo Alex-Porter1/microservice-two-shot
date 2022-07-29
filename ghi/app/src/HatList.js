@@ -2,24 +2,44 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 function HatColumn(props) {
+    const handleDeleteClick = async haturl =>{
+        const url ="http://localhost:8090"+haturl
+        const fetchConfig ={
+            method:'delete'
+        }
+    
+
+    const response  = await fetch(url,fetchConfig);
+    if(response.ok){
+        window.location.reload()
+
+    }
+}
+
+
+
   return (
     <div className="col">
       {props.list.map(data => {
         console.log(data)
         return (
           <div key={data.href} className="card mb-3 shadow">
-            <img src={data.location.picture_url} className="card-img-top" />
+            <img src={data.picture_url} className="card-img-top" />
             <div className="card-body">
               <h5 className="card-title">{data.name}</h5>
               <h6 className="card-subtitle mb-2 text-muted">
-                {data.fabric}
+                {data.fabric}--{data.color}
+                <p>{data.location.name}</p>
               </h6>
               <p className="card-text">
-                {data.location.name}
+                {data.style}
+                
               </p>
             </div>
             <div className="card-footer">
-              
+            
+            <button onClick={() => handleDeleteClick(data.href)} className="btn btn-primary px-4 ">Delete Hat</button>
+
             </div>
           </div>
         );
@@ -28,11 +48,15 @@ function HatColumn(props) {
   );
 }
 
+
+
+
+
 class HatList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      hatColumns: [[], [], []],
+      hatColumns: [[], [], [],[]],
     };
   }
 
@@ -59,7 +83,7 @@ class HatList extends React.Component {
 
         // Set up the "columns" to put the conference
         // information into
-        const hatColumns = [[], [], []];
+        const hatColumns = [[], [], [],[]];
 
         // Loop over the conference detail responses and add
         // each to to the proper "column" if the response is
@@ -70,7 +94,7 @@ class HatList extends React.Component {
             const details = await hatResponse.json();
             hatColumns[i].push(details);
             i = i + 1;
-            if (i > 2) {
+            if (i > 3) {
               i = 0;
             }
           } else {
@@ -87,16 +111,21 @@ class HatList extends React.Component {
     }
   }
 
+
+
+  
+
   render() {
     return (
       <>
         <div className="px-4 py-5 my-5 mt-0 text-center bg-info">
-          <img className="bg-white rounded shadow d-block mx-auto mb-4" src="/logo.svg" alt="" width="600" />
+          <img className="bg-white rounded shadow d-block mx-auto mb-4" src="https://scontent.cdninstagram.com/v/t51.29350-15/280456981_384757720331124_1529234388717912466_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=8ae9d6&_nc_ohc=TA_KLc8c3z4AX-bPe4w&_nc_ht=scontent.cdninstagram.com&edm=ANo9K5cEAAAA&oh=00_AT-oBCKvSvH36aTm6cQ3I1Tt4mZCzHmWBkBhHxxIiHGbKg&oe=62E8A36A" alt="" width="600" />
           <h1 className="display-5 fw-bold">Hats Worlds</h1>
           <div className="col-lg-6 mx-auto">
             <p className="lead mb-4">
-              The only resource you'll ever need to plan an run your in-person or
-              virtual conference for thousands of attendees and presenters.
+            On he bouche le ma durant ferree. Ici affection fusillade signalant inassouvi situation ces. 
+            Ca au capitaine soufflent repousser. 
+            Agreerait sonnaient cartouche ii la messieurs annoncait te. Je sons cite prit ah xv. 
             </p>
             <div className="d-grid gap-2 d-sm-flex justify-content-sm-center">
               <Link to="/new" className="btn btn-primary btn-lg px-4 gap-3">Keep your hats</Link>

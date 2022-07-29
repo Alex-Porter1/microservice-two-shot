@@ -10,6 +10,7 @@ class HatForm extends React.Component{
             picture_url:"",
             locations:[]
 
+
         };
 
         this.handleFieldChange = this.handleFieldChange.bind(this);
@@ -49,6 +50,11 @@ class HatForm extends React.Component{
 
           };
         this.setState(cleared);
+
+        const formTag = document.getElementById('create-attendee-form');
+        const loadingMessage = document.getElementById('success-message');
+        loadingMessage.classList.remove("d-none");
+        
 
     }
 }
@@ -120,7 +126,10 @@ async componentDidMount(){
 
                     </select>
                   </div>
-                  <button className="btn btn-primary">Create</button>
+                  <button className="btn btn-primary">Add</button>
+                  <p className="alert alert-success d-none mb-0" id="success-message" style={{marginTop:15}}>
+                    I am in your Hat Worlds
+                </p>
                 </form>
               </div>
             </div>
