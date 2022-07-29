@@ -60,7 +60,7 @@ class ShoeList extends React.Component {
                 <td>{ shoe.bin.closet_name }</td>
                 <td>{ shoe.bin.bin_number }</td>
                 <td>{ shoe.bin.bin_size }</td>
-                <td><button className="btn btn-danger" onClick={() => this.deleteShoe(shoe)}>Delete</button></td>
+                <td><button className="btn btn-outline-dark" onClick={() => this.deleteShoe(shoe)}>Delete</button></td>
               </tr>
             );
           })}
