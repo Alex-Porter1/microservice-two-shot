@@ -1,83 +1,110 @@
-from django.shortcuts import render
-from common.json import ModelEncoder
 from django.http import JsonResponse
-import json
+from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
-from .models import BinVO, Shoe
+import json
 
+from common.json import ModelEncoder
+from .models import Shoe, BinVO
 
-class BinVOListEncoder(ModelEncoder):
+# Create your views here.
+
+class BinVOEncoder(ModelEncoder):
     model = BinVO
-    properties = [
-        "import_href",
-        "closet_name",
-    ]
+    properties = ["closet_name", "bin_number", "bin_size"]
 
-class ShoeListEncoder(ModelEncoder):
+class ShoeDetailEncoder(ModelEncoder):
     model = Shoe
     properties = [
-        "manufacturer",
+        "id",
         "name",
+        "manufacturer",
+        "model_name",
         "color",
         "picture_url",
+        "bin",
     ]
     encoders = {
-        "bin": BinVOListEncoder(),
+        "bin": BinVOEncoder(),
     }
 
-def api_list_binVOs(request):
-    if request.method == "GET":
-        binVOs = BinVO.objects.all()
-        return JsonResponse(
-            {"BinVOs": binVOs},
-            encoder=BinVOListEncoder,
-            safe=False
-        )
 
-
+class ShoeEncoder(ModelEncoder):
+    model = Shoe
+    properties = [
+        "id",
+        "name",
+        "manufacturer",
+        "model_name",
+        "color",
+        "picture_url",
+        "bin",
+    ]
+    encoders = {
+        "bin": BinVOEncoder(),
+    }
 
 @require_http_methods(["GET", "POST"])
-def api_list_shoes(request, bin_vo_id=None):
+def api_shoes(request):
     if request.method == "GET":
-        if bin_vo_id is not None:
-            shoes = Shoe.objects.filter(bin=bin_vo_id)
-        else:
-            shoes = Shoe.objects.all()
+        # show all shoes
+        shoes = Shoe.objects.all()
+        print("shoes all", shoes)
+        print("type", type(shoes))
         return JsonResponse(
             {"shoes": shoes},
-            encoder=ShoeListEncoder,
+            encoder=ShoeEncoder,
         )
-    else:
+    else: # POST
         content = json.loads(request.body)
-
-        # Get the Location object and put it in the content dict
+        print("content", content)
         try:
-            bin_href = content["bin"]
-            bin = BinVO.objects.get(import_href=bin_href)
-            content["bin"] = bin
+            if "bin" in content:
+                real_bin = content["bin"]
+                bin = BinVO.objects.get(import_href=real_bin)               
+                content["bin"] = bin
+            else:
+                content["bin"] = None
         except BinVO.DoesNotExist:
             return JsonResponse(
-                {"message": "Invalid bin id"},
+                {"message": "Invalid bin vo"},
                 status=400,
             )
 
-        shoes = Shoe.objects.create(**content)
+        shoe = Shoe.objects.create(**content)
+        print("shoe object type", type(shoe))
         return JsonResponse(
-            shoes,
-            encoder=ShoeListEncoder,
+            shoe,
+            encoder=ShoeEncoder,
             safe=False,
         )
 
-@require_http_methods('DELETE')
-def api_delete_shoes(request, pk):
-
-    try:
+@require_http_methods(["DELETE", "GET", "PUT"])
+def api_shoe(request, pk):
+    if request.method == "DELETE":
+        count, _ = Shoe.objects.filter(id=pk).delete()
+        return JsonResponse({"deleted": count > 0})
+    elif request.method == "GET":
         shoe = Shoe.objects.get(id=pk)
-        shoe.delete()
         return JsonResponse(
             shoe,
-            encoder=ShoeListEncoder,
-            safe=False
+            encoder=ShoeDetailEncoder,
+            safe=False,
         )
-    except Shoe.DoesNotExist:
-        return JsonResponse({'message': 'Does not exist'})
+    else: # PUT
+        content = json.loads(request.body)
+        try:
+            if "bin" in content:
+                bin = BinVO.objects.get(import_href=content["bin"])
+                content["bin"] = bin
+        except BinVO.DoesNotExist:
+            return JsonResponse(
+                {"message": "Invalid bin vo"},
+                status=400,
+            )
+        Shoe.objects.filter(id=pk).update(**content)
+        shoe = Shoe.objects.get(id=pk)
+        return JsonResponse(
+            shoe,
+            encoder=ShoeDetailEncoder,
+            safe=False,
+        )
